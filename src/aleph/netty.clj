@@ -502,7 +502,8 @@
   (port [_] "Returns the port the server is listening on."))
 
 (defn epoll? []
-  (Epoll/isAvailable))
+  #_(Epoll/isAvailable)
+  false)
 
 (defn get-default-event-loop-threads
   "Determines the default number of threads to use for a Netty EventLoopGroup.
