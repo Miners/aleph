@@ -54,7 +54,7 @@
     (doseq [[k v] (:probes options)]
       (run-pipeline close-result (fn [_] (close v)))
       (siphon (probe-channel [server-name k]) v))
-    
+
     (.setPipelineFactory server
       (create-pipeline-factory channel-group pipeline-generator))
 
@@ -82,22 +82,23 @@
   ([handler netty-channel]
      (let [[a b] (channel-pair)
            latch (atom false)
+           error-probe (error-probe-channel "server-handler:error")
            initializer (fn [^Channel netty-channel]
                          (when (compare-and-set! latch false true)
-                        
+
                            (on-error a
                              (fn [ex]
-                               (log/error ex "Error in server handler, closing connection.")
+                               (enqueue error-probe ex)
                                (close-channel netty-channel)))
-                           
+
                            ;; set up write handling
                            (receive-all a
                              #(wrap-netty-channel-future (.write netty-channel %)))
-                           
+
                            ;; lamina -> netty
                            (on-drained a
                              #(close-channel netty-channel))
-                           
+
                            ;; netty -> lamina
                            (run-pipeline (.getCloseFuture netty-channel)
                              wrap-netty-channel-future
@@ -129,7 +130,7 @@
 
                (when initializer
                  (initializer netty-channel))
-        
+
                ;; handle messages
                (if-let [msg (event-message evt)]
                  (enqueue a msg)
@@ -138,4 +139,3 @@
                ;; don't hold onto channel
                (finally
                  #_(.set local-channel nil)))))))))
-
