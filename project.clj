@@ -1,4 +1,4 @@
-(defproject aleph "0.3.3"
+(defproject miners/aleph "0.3.3"
   :description "a framework for asynchronous communication"
   :repositories {"jboss" "http://repository.jboss.org/nexus/content/groups/public/"
                  "sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
@@ -23,6 +23,7 @@
              :1.6 {:dependencies [[org.clojure/clojure "1.6.0-master-SNAPSHOT"]]}}
   :aliases {"all" ["with-profile" "1.3,dev:dev:1.5,dev:1.6,dev"]}
   :plugins [[codox "0.6.2"]]
+  :local-repo "m2"
   :test-selectors {:default #(not (some #{:benchmark :redis} (cons (:tag %) (keys %))))
                    :integration :redis
                    :benchmark :benchmark
